@@ -1,6 +1,8 @@
 package main
 
 import (
+	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -27,6 +29,31 @@ func envToMap(currentMap map[string]interface{}, envKey string, value string) ma
 }
 
 func nativeTypeAssign(targetmap map[string]interface{}, key string, value string) {
-	var v interface{} = value
+	var v interface{}
+	if r, _ := regexp.MatchString("^-?[0-9]+\\.[0-9]+$", value); r {
+		vFloat, err := strconv.ParseFloat(value, 64)
+		if err != nil {
+			v = value
+		} else {
+			v = vFloat
+		}
+	} else if r, _ := regexp.MatchString("^-?[0-9]+$", value); r {
+		vInt, err := strconv.Atoi(value)
+		if err != nil {
+			v = value
+		} else {
+			v = vInt
+		}
+	} else if value == "true" || value == "false" {
+		vBool, err := strconv.ParseBool(value)
+		if err != nil {
+			v = value
+		} else {
+			v = vBool
+		}
+	} else {
+		v = value
+	}
+
 	targetmap[key] = v
 }

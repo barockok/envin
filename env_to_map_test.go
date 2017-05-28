@@ -28,9 +28,44 @@ func Test_envToMap(t *testing.T) {
 		t.Errorf("error, nested key not assigned correctly")
 	}
 
-	envToMap(predefinedMap, "mysql___port", "3306")
+	envToMap(predefinedMap, "mysql___port", "\"3306\"")
 	mysqlMap = predefinedMap["mysql"].(map[string]interface{})
-	if !(mysqlMap["host"] == "127.0.0.1" && mysqlMap["port"] == "3306") {
+	if !(mysqlMap["host"] == "127.0.0.1" && mysqlMap["port"] == "\"3306\"") {
 		t.Errorf("error, add new item on preexisting nested map failed %v", mysqlMap["host"])
 	}
+
+}
+
+func Test_nativeTypeAssign(t *testing.T) {
+	predefinedMap := make(map[string]interface{})
+	nativeTypeAssign(predefinedMap, "anInteger", "100")
+	if predefinedMap["anInteger"] != 100 {
+		t.Errorf("Failed to format integer")
+	}
+
+	nativeTypeAssign(predefinedMap, "anInteger", "-100")
+	if predefinedMap["anInteger"] != -100 {
+		t.Errorf("Failed to format negative integer")
+	}
+
+	nativeTypeAssign(predefinedMap, "aFloat", "1.230")
+	if predefinedMap["aFloat"] != 1.23 {
+		t.Errorf("Failed to format Float ")
+	}
+
+	nativeTypeAssign(predefinedMap, "aFloat", "-1.230")
+	if predefinedMap["aFloat"] != -1.23 {
+		t.Errorf("Failed to format Negative Float")
+	}
+
+	nativeTypeAssign(predefinedMap, "aBool", "true")
+	if predefinedMap["aBool"] != true {
+		t.Errorf("Failed to format boolean true")
+	}
+
+	nativeTypeAssign(predefinedMap, "aBool", "false")
+	if predefinedMap["aBool"] != false {
+		t.Errorf("Failed to format boolean false")
+	}
+
 }
