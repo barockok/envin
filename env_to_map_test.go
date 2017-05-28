@@ -34,6 +34,21 @@ func Test_envToMap(t *testing.T) {
 		t.Errorf("error, add new item on preexisting nested map failed %v", mysqlMap["host"])
 	}
 
+	// var arrAttr []interface{}
+	// envToMap(predefinedMap, "items___0___name", "orange")
+	// envToMap(predefinedMap, "items___0___qty", "1")
+
+	// envToMap(predefinedMap, "items___1___name", "mango")
+	// envToMap(predefinedMap, "items___1___qty", "2")
+
+	// if tipe, isTrue := predefinedMap["items"].([]interface{}); !isTrue {
+	// 	t.Errorf("Error, items not initialized as array type : %v ", tipe)
+	// }
+	// arrAttr = predefinedMap["items"].([]interface{})
+
+	// if len(arrAttr) != 2 {
+	// 	t.Errorf("Error, arr attr not parsed")
+	// }
 }
 
 func Test_nativeTypeAssign(t *testing.T) {

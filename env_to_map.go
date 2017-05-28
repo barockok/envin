@@ -12,15 +12,13 @@ func envToMap(currentMap map[string]interface{}, envKey string, value string) ma
 		if len(keys) == 1 {
 			nativeTypeAssign(currentMap, envKey, value)
 		} else {
-			rootKey := keys[0] + "___"
-			strippedKey := strings.Replace(envKey, rootKey, "", -1)
-			var targetChild map[string]interface{}
-			if currentMap[keys[0]] == nil {
-				targetChild = make(map[string]interface{})
+			key := keys[0]
+			if match, _ := regexp.MatchString("^[0-9]+$", key); match {
+				// fmt.Println("*********** is integer key *********")
+				// currentMap[key] = envToMap2Array(currentMap, key, envKey, value)
 			} else {
-				targetChild = currentMap[keys[0]].(map[string]interface{})
+				currentMap[key] = envToMap2Map(currentMap, key, envKey, value)
 			}
-			currentMap[keys[0]] = envToMap(targetChild, strippedKey, value)
 		}
 	} else {
 		nativeTypeAssign(currentMap, envKey, value)
@@ -28,7 +26,30 @@ func envToMap(currentMap map[string]interface{}, envKey string, value string) ma
 	return currentMap
 }
 
+// func envToMap2Array(currentMap map[string]interface{}, key string, envKey string, value string) []interface{} {
+// 	var cSlice []interface{}
+// 	if currentMap[envKey] == nil {
+// 		cSlice = make([]interface{}, 1)
+// 	} else {
+// 		cSlice = currentMap[envKey].([]interface{})
+// 	}
+
+// }
+
+func envToMap2Map(currentMap map[string]interface{}, key string, envKey string, value string) map[string]interface{} {
+	rootKey := key + "___"
+	strippedKey := strings.Replace(envKey, rootKey, "", -1)
+	var targetChild map[string]interface{}
+	if currentMap[key] == nil {
+		targetChild = make(map[string]interface{})
+	} else {
+		targetChild = currentMap[key].(map[string]interface{})
+	}
+	return envToMap(targetChild, strippedKey, value)
+}
+
 func nativeTypeAssign(targetmap map[string]interface{}, key string, value string) {
+
 	var v interface{}
 	if r, _ := regexp.MatchString("^-?[0-9]+\\.[0-9]+$", value); r {
 		vFloat, err := strconv.ParseFloat(value, 64)
