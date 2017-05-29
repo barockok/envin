@@ -34,21 +34,27 @@ func Test_envToMap(t *testing.T) {
 		t.Errorf("error, add new item on preexisting nested map failed %v", mysqlMap["host"])
 	}
 
-	// var arrAttr []interface{}
-	// envToMap(predefinedMap, "items___0___name", "orange")
-	// envToMap(predefinedMap, "items___0___qty", "1")
+	envToMap(predefinedMap, "items___0___name", "orange")
+	envToMap(predefinedMap, "items___0___qty", "1")
 
-	// envToMap(predefinedMap, "items___1___name", "mango")
-	// envToMap(predefinedMap, "items___1___qty", "2")
+	if tipe, ok := predefinedMap["items"].(arrayCollector); !ok {
+		t.Errorf("Error, items not initialized as arrayCollectore, go type : %v ", tipe)
+	}
 
-	// if tipe, isTrue := predefinedMap["items"].([]interface{}); !isTrue {
-	// 	t.Errorf("Error, items not initialized as array type : %v ", tipe)
-	// }
-	// arrAttr = predefinedMap["items"].([]interface{})
+	item0 := predefinedMap["items"].(arrayCollector).entries["0"].(map[string]interface{})
+	if item0["name"] != "orange" {
+		t.Errorf("Error, items content not parsed correctly expected : %s got %s", "orange", item0["name"])
+	}
+	if item0["qty"] != 1 {
+		t.Errorf("Error, items content not parsed correctly expected : %d got %s", 1, item0["qty"])
+	}
+	envToMap(predefinedMap, "roles___0", "admin")
+	envToMap(predefinedMap, "roles___1", "supreme")
+	roles := predefinedMap["roles"].(arrayCollector).entries
+	if actLen := len(roles); actLen != 2 {
+		t.Errorf("Error, number of array parsed incorrect, expected %d, got : %d", 2, actLen)
+	}
 
-	// if len(arrAttr) != 2 {
-	// 	t.Errorf("Error, arr attr not parsed")
-	// }
 }
 
 func Test_nativeTypeAssign(t *testing.T) {

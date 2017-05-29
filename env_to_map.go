@@ -6,6 +6,10 @@ import (
 	"strings"
 )
 
+type arrayCollector struct {
+	entries map[string]interface{}
+}
+
 func envToMap(currentMap map[string]interface{}, envKey string, value string) map[string]interface{} {
 	if strings.Contains(envKey, "___") {
 		keys := strings.Split(envKey, "___")
@@ -13,9 +17,12 @@ func envToMap(currentMap map[string]interface{}, envKey string, value string) ma
 			nativeTypeAssign(currentMap, envKey, value)
 		} else {
 			key := keys[0]
-			if match, _ := regexp.MatchString("^[0-9]+$", key); match {
-				// fmt.Println("*********** is integer key *********")
-				// currentMap[key] = envToMap2Array(currentMap, key, envKey, value)
+			key2 := keys[1]
+			key1Match, _ := regexp.MatchString("^[0-9]+$", key)
+			key2Match, _ := regexp.MatchString("^[0-9]+$", key2)
+
+			if !key1Match && key2Match {
+				currentMap[key] = envToMap2Array(currentMap, envKey, key, key2, value)
 			} else {
 				currentMap[key] = envToMap2Map(currentMap, key, envKey, value)
 			}
@@ -26,15 +33,34 @@ func envToMap(currentMap map[string]interface{}, envKey string, value string) ma
 	return currentMap
 }
 
-// func envToMap2Array(currentMap map[string]interface{}, key string, envKey string, value string) []interface{} {
-// 	var cSlice []interface{}
-// 	if currentMap[envKey] == nil {
-// 		cSlice = make([]interface{}, 1)
-// 	} else {
-// 		cSlice = currentMap[envKey].([]interface{})
-// 	}
+func envToMap2Array(cmap map[string]interface{}, envKey, collKey, itemKey, value string) interface{} {
+	var coll arrayCollector
+	if cmap[collKey] == nil {
+		coll = arrayCollector{}
+		coll.entries = map[string]interface{}{}
+	} else {
+		coll = cmap[collKey].(arrayCollector)
+	}
 
-// }
+	rootKey := collKey + "___" + itemKey
+	strippedKey := strings.Replace(envKey, rootKey, "", -1)
+
+	if strippedKey == "" {
+		coll.entries[itemKey] = convString(value)
+	} else {
+		rootKey := collKey + "___" + itemKey + "___"
+		strippedKey := strings.Replace(envKey, rootKey, "", -1)
+
+		var itemCont map[string]interface{}
+		if itemContIface := coll.entries[itemKey]; itemContIface == nil {
+			itemCont = map[string]interface{}{}
+		} else {
+			itemCont = itemContIface.(map[string]interface{})
+		}
+		coll.entries[itemKey] = envToMap(itemCont, strippedKey, value)
+	}
+	return coll
+}
 
 func envToMap2Map(currentMap map[string]interface{}, key string, envKey string, value string) map[string]interface{} {
 	rootKey := key + "___"
@@ -49,7 +75,10 @@ func envToMap2Map(currentMap map[string]interface{}, key string, envKey string, 
 }
 
 func nativeTypeAssign(targetmap map[string]interface{}, key string, value string) {
+	targetmap[key] = convString(value)
+}
 
+func convString(value string) interface{} {
 	var v interface{}
 	if r, _ := regexp.MatchString("^-?[0-9]+\\.[0-9]+$", value); r {
 		vFloat, err := strconv.ParseFloat(value, 64)
@@ -75,6 +104,5 @@ func nativeTypeAssign(targetmap map[string]interface{}, key string, value string
 	} else {
 		v = value
 	}
-
-	targetmap[key] = v
+	return v
 }
