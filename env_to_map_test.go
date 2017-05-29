@@ -55,6 +55,17 @@ func Test_envToMap(t *testing.T) {
 		t.Errorf("Error, number of array parsed incorrect, expected %d, got : %d", 2, actLen)
 	}
 
+	if roles["0"] != "admin" || roles["1"] != "supreme" {
+		t.Errorf("Error, simple array item not parsed correctly")
+	}
+
+	envToMap(predefinedMap, "roles___3___role", "admin")
+	envToMap(predefinedMap, "roles___3___members___0___name", "rocky")
+	role3 := predefinedMap["roles"].(arrayCollector).entries["3"].(map[string]interface{})
+	member0 := role3["members"].(arrayCollector).entries["0"].(map[string]interface{})
+	if member0["name"] != "rocky" {
+		t.Errorf("Error, really nested map")
+	}
 }
 
 func Test_nativeTypeAssign(t *testing.T) {
