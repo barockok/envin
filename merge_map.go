@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-func mergeMap(dest, src map[string]interface{}) map[string]interface{} {
+func mergeMap(dest map[string]interface{}, src map[string]interface{}) map[string]interface{} {
 	for key, val := range dest {
 		targetSrc := src[key]
 		if targetSrc == nil {
