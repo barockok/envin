@@ -62,5 +62,4 @@ func Test_mergeDestFromJson(t *testing.T) {
 	if itemInSimpleArray != 80 {
 		t.Errorf("Error, not override simple value in an array")
 	}
-
 }
