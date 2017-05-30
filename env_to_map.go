@@ -7,10 +7,10 @@ import (
 )
 
 type arrayCollector struct {
-	entries map[string]interface{}
+	entries mapStringIface
 }
 
-func envToMap(currentMap map[string]interface{}, envKey string, value string) map[string]interface{} {
+func envToMap(currentMap mapStringIface, envKey string, value string) mapStringIface {
 	if strings.Contains(envKey, "___") {
 		keys := strings.Split(envKey, "___")
 		if len(keys) == 1 {
@@ -33,11 +33,11 @@ func envToMap(currentMap map[string]interface{}, envKey string, value string) ma
 	return currentMap
 }
 
-func envToMap2Array(cmap map[string]interface{}, envKey, collKey, itemKey, value string) interface{} {
+func envToMap2Array(cmap mapStringIface, envKey, collKey, itemKey, value string) interface{} {
 	var coll arrayCollector
 	if cmap[collKey] == nil {
 		coll = arrayCollector{}
-		coll.entries = map[string]interface{}{}
+		coll.entries = mapStringIface{}
 	} else {
 		coll = cmap[collKey].(arrayCollector)
 	}
@@ -51,30 +51,30 @@ func envToMap2Array(cmap map[string]interface{}, envKey, collKey, itemKey, value
 		rootKey := collKey + "___" + itemKey + "___"
 		strippedKey := strings.Replace(envKey, rootKey, "", -1)
 
-		var itemCont map[string]interface{}
+		var itemCont mapStringIface
 		if itemContIface := coll.entries[itemKey]; itemContIface == nil {
-			itemCont = map[string]interface{}{}
+			itemCont = mapStringIface{}
 		} else {
-			itemCont = itemContIface.(map[string]interface{})
+			itemCont = itemContIface.(mapStringIface)
 		}
 		coll.entries[itemKey] = envToMap(itemCont, strippedKey, value)
 	}
 	return coll
 }
 
-func envToMap2Map(currentMap map[string]interface{}, key string, envKey string, value string) map[string]interface{} {
+func envToMap2Map(currentMap mapStringIface, key string, envKey string, value string) mapStringIface {
 	rootKey := key + "___"
 	strippedKey := strings.Replace(envKey, rootKey, "", -1)
-	var targetChild map[string]interface{}
+	var targetChild mapStringIface
 	if currentMap[key] == nil {
-		targetChild = make(map[string]interface{})
+		targetChild = make(mapStringIface)
 	} else {
-		targetChild = currentMap[key].(map[string]interface{})
+		targetChild = currentMap[key].(mapStringIface)
 	}
 	return envToMap(targetChild, strippedKey, value)
 }
 
-func nativeTypeAssign(targetmap map[string]interface{}, key string, value string) {
+func nativeTypeAssign(targetmap mapStringIface, key string, value string) {
 	targetmap[key] = convString(value)
 }
 

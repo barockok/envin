@@ -5,7 +5,7 @@ import (
 )
 
 func Test_envToMap(t *testing.T) {
-	predefinedMap := make(map[string]interface{})
+	predefinedMap := make(mapStringIface)
 
 	envToMap(predefinedMap, "mysql_host", "localhost")
 	if predefinedMap["mysql_host"] != "localhost" {
@@ -17,19 +17,19 @@ func Test_envToMap(t *testing.T) {
 		t.Errorf("failed override simple value expected %s, got %s", "127.0.0.1", predefinedMap["mysql_host"])
 	}
 
-	var mysqlMap map[string]interface{}
+	var mysqlMap mapStringIface
 	envToMap(predefinedMap, "mysql___host", "127.0.0.1")
-	if tipe, ok := predefinedMap["mysql"].(map[string]interface{}); !ok {
+	if tipe, ok := predefinedMap["mysql"].(mapStringIface); !ok {
 		t.Errorf("error, nested key not converted to map interface , got %s", tipe)
 	}
 
-	mysqlMap = predefinedMap["mysql"].(map[string]interface{})
+	mysqlMap = predefinedMap["mysql"].(mapStringIface)
 	if mysqlMap["host"] != "127.0.0.1" {
 		t.Errorf("error, nested key not assigned correctly")
 	}
 
 	envToMap(predefinedMap, "mysql___port", "\"3306\"")
-	mysqlMap = predefinedMap["mysql"].(map[string]interface{})
+	mysqlMap = predefinedMap["mysql"].(mapStringIface)
 	if !(mysqlMap["host"] == "127.0.0.1" && mysqlMap["port"] == "\"3306\"") {
 		t.Errorf("error, add new item on preexisting nested map failed %v", mysqlMap["host"])
 	}
@@ -41,7 +41,7 @@ func Test_envToMap(t *testing.T) {
 		t.Errorf("Error, items not initialized as arrayCollectore, go type : %v ", tipe)
 	}
 
-	item0 := predefinedMap["items"].(arrayCollector).entries["0"].(map[string]interface{})
+	item0 := predefinedMap["items"].(arrayCollector).entries["0"].(mapStringIface)
 	if item0["name"] != "orange" {
 		t.Errorf("Error, items content not parsed correctly expected : %s got %s", "orange", item0["name"])
 	}
@@ -61,15 +61,15 @@ func Test_envToMap(t *testing.T) {
 
 	envToMap(predefinedMap, "roles___3___role", "admin")
 	envToMap(predefinedMap, "roles___3___members___0___name", "rocky")
-	role3 := predefinedMap["roles"].(arrayCollector).entries["3"].(map[string]interface{})
-	member0 := role3["members"].(arrayCollector).entries["0"].(map[string]interface{})
+	role3 := predefinedMap["roles"].(arrayCollector).entries["3"].(mapStringIface)
+	member0 := role3["members"].(arrayCollector).entries["0"].(mapStringIface)
 	if member0["name"] != "rocky" {
 		t.Errorf("Error, really nested map")
 	}
 }
 
 func Test_nativeTypeAssign(t *testing.T) {
-	predefinedMap := make(map[string]interface{})
+	predefinedMap := make(mapStringIface)
 	nativeTypeAssign(predefinedMap, "anInteger", "100")
 	if predefinedMap["anInteger"] != 100 {
 		t.Errorf("Failed to format integer")
