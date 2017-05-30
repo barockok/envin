@@ -7,10 +7,9 @@ LDFLAGS:=-X main.buildVersion=$(TAG)
 all: envin
 
 deps:
-	go get github.com/robfig/glock
-	glock sync -n < GLOCKFILE
+	go get gopkg.in/yaml.v2
 
-dockerize:
+envin:
 	echo "Building envin"
 	go install -ldflags "$(LDFLAGS)"
 
@@ -18,6 +17,7 @@ dist-clean:
 	rm -rf dist
 	rm -f envin-alpine-linux-*.tar.gz
 	rm -f envin-linux-*.tar.gz
+
 dist: deps dist-clean
 	mkdir -p dist/alpine-linux/amd64 && GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -a -tags netgo -installsuffix netgo -o dist/alpine-linux/amd64/envin
 	mkdir -p dist/linux/amd64 && GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o dist/linux/amd64/envin
@@ -29,3 +29,6 @@ release: dist
 	tar -cvzf envin-linux-amd64-$(TAG).tar.gz -C dist/linux/amd64 envin
 	tar -cvzf envin-linux-armel-$(TAG).tar.gz -C dist/linux/armel envin
 	tar -cvzf envin-linux-armhf-$(TAG).tar.gz -C dist/linux/armhf envin
+
+test: deps
+	go test -v
