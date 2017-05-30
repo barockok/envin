@@ -24,11 +24,12 @@ func mergeMap(dest mapStringIface, src mapStringIface) mapStringIface {
 		destAttr := dest[key]
 		// attribute not present in dest, so src will add it
 		if destAttr == nil {
-			emptyDest := mapStringIface{}
 			if _, ok := val.(mapStringIface); ok {
+				emptyDest := mapStringIface{}
 				dest[key] = mergeMap(emptyDest, val.(mapStringIface))
 			} else if coll, ok := val.(arrayCollector); ok {
-				dest[key] = mergeArray(emptyDest, coll)
+				emptyArrayIface := []interface{}{}
+				dest[key] = mergeArray(toI(emptyArrayIface), coll)
 			} else {
 				dest[key] = val
 			}
