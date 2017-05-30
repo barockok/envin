@@ -48,7 +48,7 @@ func Test_mergeDestFromJson(t *testing.T) {
 	dest := mapStringIface{}
 	json.Unmarshal(jsonString, &dest)
 
-	src := mapStringIface{"simpleString": toI("hello")}
+	src := mapStringIface{}
 	src["simpleArray"] = toI(arrayCollector{entries: mapStringIface{"2": toI(80)}})
 	overrideObjectInArray := toI(mapStringIface{"name": "Not so deep anymore"})
 	src["objectInArray"] = toI(arrayCollector{entries: mapStringIface{"0": overrideObjectInArray}})
@@ -58,6 +58,11 @@ func Test_mergeDestFromJson(t *testing.T) {
 	if overrideObjectInArrayRes["name"] != "Not so deep anymore" {
 		t.Errorf("Error, not override object in an array")
 	}
+
+	if overrideObjectInArrayRes["label"] != "deep" {
+		t.Errorf("Error, its remove the objec in array that not being updated")
+	}
+
 	itemInSimpleArray := dest["simpleArray"].([]interface{})[2].(int)
 	if itemInSimpleArray != 80 {
 		t.Errorf("Error, not override simple value in an array")

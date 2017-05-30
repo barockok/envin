@@ -11,8 +11,8 @@ func mergeMap(dest mapStringIface, src mapStringIface) mapStringIface {
 		if targetSrc == nil {
 			continue
 		} else {
-			if _, ok := targetSrc.(mapStringIface); reflect.TypeOf(val) == reflect.TypeOf(targetSrc) && ok {
-				dest[key] = mergeMap(val.(mapStringIface), targetSrc.(mapStringIface))
+			if targetSrcVal, ok := targetSrc.(mapStringIface); reflect.TypeOf(val) == reflect.TypeOf(targetSrc) && ok {
+				dest[key] = mergeMap(val.(mapStringIface), targetSrcVal)
 			} else if coll, ok := targetSrc.(arrayCollector); ok {
 				dest[key] = mergeArray(val, coll)
 			} else {
@@ -40,17 +40,15 @@ func mergeMap(dest mapStringIface, src mapStringIface) mapStringIface {
 
 func mergeArray(dest interface{}, src arrayCollector) interface{} {
 	destArray := dest.([]interface{})
-	for i, val := range destArray {
-		targetSrc := src.entries[strconv.Itoa(i)]
-		valVal, ok1 := val.(mapStringIface)
-		targetVal, ok2 := targetSrc.(mapStringIface)
-
-		if targetSrc == nil {
-			continue
-		} else if ok1 && ok2 {
-			destArray[i] = mergeMap(valVal, targetVal)
+	for keyIndex, val := range src.entries {
+		i, _ := strconv.Atoi(keyIndex)
+		destVal := destArray[i]
+		srcVal, okMapStringIface := val.(mapStringIface)
+		destValVal, okDestValIface := destVal.(map[string]interface{})
+		if okMapStringIface && okDestValIface {
+			destArray[i] = mergeMap(destValVal, srcVal)
 		} else {
-			destArray[i] = targetSrc
+			destArray[i] = val
 		}
 	}
 	return destArray
