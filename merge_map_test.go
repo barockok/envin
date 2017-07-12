@@ -36,6 +36,11 @@ func Test_mergeDestFromJson(t *testing.T) {
 			"nestedAttr" : {
 				"attrLevel1" : "hello"
 			},
+			"deepNestedArrayWithPresentAttr" : {
+				"item1" : {
+					"attr1" : "hello"
+				}
+			},
 			"objectInArray" : [
 				{
 					"name" : "I'm so deep",
@@ -72,5 +77,16 @@ func Test_mergeDestFromJson(t *testing.T) {
 	mergeMap(dest, src)
 	if dest["newAttr"] != toI("hello") {
 		t.Errorf("Error, cannot add new attribute")
+	}
+	item1 := toI(map[string]interface{}{"attr2": "whadup"})
+	src["deepNestedArrayWithPresentAttr"] = toI(map[string]interface{}{"item1": item1})
+	mergeMap(dest, src)
+
+	item1onDest := dest["deepNestedArrayWithPresentAttr"].(map[string]interface{})["item1"].(map[string]interface{})
+	if item1onDest["attr2"] != toI("whadup") {
+		t.Errorf("Error, on deep nested wont add new attr")
+	}
+	if item1onDest["attr1"] != toI("hello") {
+		t.Errorf("Error, on deep nested it cange the existing value")
 	}
 }
