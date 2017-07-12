@@ -2,8 +2,6 @@ package main
 
 import "fmt"
 
-type mapStringIface map[string]interface{}
-
 type readFileError struct {
 	path string
 	kind string

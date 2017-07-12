@@ -26,12 +26,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	customMap := make(mapStringIface)
+	customMap := make(map[string]interface{})
 	for key, value := range envMap(conf.prefix) {
 		envToMap(customMap, key, value)
 	}
 
-	var loadedMap mapStringIface
+	var loadedMap map[string]interface{}
 	var err error
 
 	if conf.srcfile != "" {
@@ -41,7 +41,7 @@ func main() {
 			loadedMap, err = loadMapYAMLFile(conf.srcfile)
 		}
 	} else {
-		loadedMap = make(mapStringIface)
+		loadedMap = make(map[string]interface{})
 	}
 
 	checkErrorAndExit(err)

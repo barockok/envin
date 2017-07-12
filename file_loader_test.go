@@ -33,10 +33,10 @@ func Test_loadMapJSONFile(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    mapStringIface
+		want    map[string]interface{}
 		wantErr bool
 	}{
-		{"valid Json", args{filepath: fileWithValidJSONContent}, mapStringIface{"simpleString": toI("this is string")}, false},
+		{"valid Json", args{filepath: fileWithValidJSONContent}, map[string]interface{}{"simpleString": toI("this is string")}, false},
 		{"invalid Json", args{filepath: fileWithInvalidJSONContent}, nil, true},
 	}
 	for _, tt := range tests {
@@ -75,10 +75,10 @@ func Test_loadMapYAMLFile(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    mapStringIface
+		want    map[string]interface{}
 		wantErr bool
 	}{
-		{"valid YAML", args{filepath: fileWithValidYAMLContent}, mapStringIface{"attribute": toI("Easy!")}, false},
+		{"valid YAML", args{filepath: fileWithValidYAMLContent}, map[string]interface{}{"attribute": toI("Easy!")}, false},
 		{"invalid YAML", args{filepath: fileWithInvalidYAMLContent}, nil, true},
 	}
 	for _, tt := range tests {
